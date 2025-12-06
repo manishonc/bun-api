@@ -1,5 +1,5 @@
 import postgres from 'postgres';
-import { readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 
 const connectionString = process.env.DATABASE_URL;
@@ -16,15 +16,24 @@ async function runMigrations() {
   const sql = postgres(connectionString as string);
 
   try {
-    // Read and execute the migration file
-    const migrationPath = join(process.cwd(), 'migrations', '001_create_posts_table.sql');
-    const migrationSQL = readFileSync(migrationPath, 'utf-8');
-    
-    // Execute the migration
-    await sql.unsafe(migrationSQL);
-    
-    console.log('✅ Migration completed successfully!\n');
-    console.log('📊 Posts table created with 50 dummy posts\n');
+    const migrationsDir = join(process.cwd(), 'migrations');
+    const migrationFiles = readdirSync(migrationsDir)
+      .filter(file => file.endsWith('.sql'))
+      .sort();
+
+    if (migrationFiles.length === 0) {
+      console.log('ℹ️  No migration files found in /migrations\n');
+      return;
+    }
+
+    for (const file of migrationFiles) {
+      const migrationPath = join(migrationsDir, file);
+      const migrationSQL = readFileSync(migrationPath, 'utf-8');
+      
+      console.log(`▶️  Running ${file}...`);
+      await sql.unsafe(migrationSQL);
+      console.log(`✅ Completed ${file}\n`);
+    }
   } catch (error) {
     console.error('❌ Migration failed:', error);
     process.exit(1);

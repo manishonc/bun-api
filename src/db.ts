@@ -1,4 +1,6 @@
 import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import * as authSchema from './db/schema/auth';
 
 export interface ConnectionInfo {
   status: 'connected' | 'disconnected' | 'error';
@@ -12,6 +14,7 @@ export interface ConnectionInfo {
 }
 
 let sql: postgres.Sql | null = null;
+let drizzleDb: ReturnType<typeof drizzle> | null = null;
 
 export async function getConnectionInfo(): Promise<ConnectionInfo> {
   const connectionString = process.env.DATABASE_URL;
@@ -100,6 +103,24 @@ export async function getDb() {
   }
 
   return sql;
+}
+
+export function getDrizzleDb() {
+  const connectionString = process.env.DATABASE_URL;
+
+  if (!connectionString) {
+    throw new Error('DATABASE_URL environment variable is not set');
+  }
+
+  if (!sql) {
+    sql = postgres(connectionString);
+  }
+
+  if (!drizzleDb) {
+    drizzleDb = drizzle(sql, { schema: authSchema });
+  }
+
+  return drizzleDb;
 }
 
 export interface Post {

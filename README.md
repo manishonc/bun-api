@@ -28,6 +28,21 @@ bun run src/index.ts
 
 The server will start on `http://localhost:3000` (or the port specified by the `PORT` environment variable).
 
+### Authentication (Better Auth)
+
+- Environment:
+  - `DATABASE_URL` (PostgreSQL connection string)
+  - `BETTER_AUTH_SECRET` (32+ chars secret for session/token encryption)
+  - `BETTER_AUTH_URL` (optional, default inferred — set to your public base URL, e.g. `http://localhost:3000`)
+- Run migrations (includes auth tables):
+  ```bash
+  bun run db:migrate
+  ```
+- Start the server and open:
+  - `/login` – email/password sign-in and sign-up
+  - `/me` – protected page showing the current user and session
+  - `/api/auth/*` – Better Auth API routes (e.g., `POST /api/auth/sign-up/email`, `POST /api/auth/sign-in/email`, `POST /api/auth/sign-out`, `GET /api/auth/get-session`)
+
 ### Build executable
 
 ```bash
