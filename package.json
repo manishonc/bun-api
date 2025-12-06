@@ -5,12 +5,16 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "bun run src/index.ts",
-    "build": "bun build --compile src/index.ts --outfile ./dist/api"
+    "build": "bun build --compile src/index.ts --outfile ./dist/api",
+    "db:migrate": "bun run src/db/migrate.ts"
   },
   "keywords": ["api", "bun", "server"],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "bun-types": "^1.3.3"
+  },
+  "dependencies": {
+    "postgres": "^3.4.7"
   }
 }
